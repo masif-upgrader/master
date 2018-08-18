@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
-	"github.com/Al2Klimov/masif-upgrader/common"
+	"github.com/masif-upgrader/common"
 	"github.com/go-sql-driver/mysql"
 	"strings"
 	"time"

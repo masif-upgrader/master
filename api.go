@@ -5,7 +5,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"errors"
-	"github.com/Al2Klimov/masif-upgrader/common"
+	"github.com/masif-upgrader/common"
 	"io/ioutil"
 	"net/http"
 	"os"
