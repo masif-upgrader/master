@@ -8,7 +8,9 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	_ "github.com/Al2Klimov/go-generate-deps"
 	"github.com/go-ini/ini"
+	_ "github.com/masif-upgrader/common"
 	"os"
 	"strings"
 )
