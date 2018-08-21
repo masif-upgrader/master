@@ -1,16 +1,16 @@
-CREATE TABLE agent (
+CREATE TABLE IF NOT EXISTS agent (
   id    BIGINT unsigned PRIMARY KEY AUTO_INCREMENT,
   name  VARCHAR(191)    NOT NULL UNIQUE,
   ctime BIGINT          NOT NULL,
   mtime BIGINT          NOT NULL
 );
 
-CREATE TABLE package (
+CREATE TABLE IF NOT EXISTS package (
   id    BIGINT unsigned PRIMARY KEY AUTO_INCREMENT,
   name  VARCHAR(191)    NOT NULL UNIQUE
 );
 
-CREATE TABLE task (
+CREATE TABLE IF NOT EXISTS task (
   agent         BIGINT unsigned REFERENCES agent(id),
   package       BIGINT unsigned REFERENCES package(id),
   from_version  VARCHAR(191),

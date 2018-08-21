@@ -1,5 +1,6 @@
 //go:generate go run gen1.go
 //go:generate go run gen2.go GithubcomAl2klimovGogeneratedeps.go
+//go:generate go run gen-mysql.go
 
 package main
 
@@ -50,6 +51,13 @@ func runMaster() error {
 	var errDB error
 	if db, errDB = sql.Open(cfg.db.typ, cfg.db.dsn); errDB != nil {
 		return errDB
+	}
+
+	for _, ddl := range mysqlDdls {
+		_, errExec := db.Exec(ddl)
+		if errExec != nil {
+			return errExec
+		}
 	}
 
 	return httpd.ListenAndServeTLS("", "")
