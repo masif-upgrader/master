@@ -1,0 +1,14 @@
+[Unit]
+Description=Masif Upgrader (master)
+After=syslog.target
+
+[Service]
+ExecStart=/usr/sbin/masif-upgrader-master --config /etc/masif-upgrader/master.ini
+StandardOutput=syslog
+StandardError=syslog
+KillMode=process
+TimeoutStopSec=infinity
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
