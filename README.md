@@ -3,7 +3,8 @@
 The **Masif Upgrader master** is a component of *Masif Upgrader*.
 
 Consult Masif Upgrader's [manual] on its purpose
-and the master's role in its architecture.
+and the master's role in its architecture
+and [demo] for a full stack live demonstration.
 
 ## Configuration
 
@@ -23,6 +24,9 @@ crl=/var/lib/puppet/ssl/ca/ca_crl.pem
 [db]
 type=mysql
 dsn=masif_upgrader_master:123456@/masif_upgrader
+
+[log]
+level=info
 ```
 
 *api.listen* is the address (HOST:PORT) to listen on for requests from agents.
@@ -43,5 +47,13 @@ The *db* section describes the database the master shares with the UI:
  type   | The database's type (only "mysql")
  dsn    | The database's [DSN]
 
+*log.level* defines the logging verbosity and is one of:
+
+* error
+* warning
+* info
+* debug
+
 [manual]: https://github.com/masif-upgrader/manual
+[demo]: https://github.com/masif-upgrader/demo
 [DSN]: https://github.com/go-sql-driver/mysql#dsn-data-source-name
