@@ -1,5 +1,4 @@
-//go:generate go run gen1.go
-//go:generate go run gen2.go GithubcomAl2klimovGogeneratedeps.go
+//go:generate go run vendor/github.com/Al2Klimov/go-gen-source-repos/main.go github.com/masif-upgrader/master
 //go:generate go run gen-mysql.go
 
 package main
@@ -10,7 +9,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	_ "github.com/Al2Klimov/go-generate-deps"
+	_ "github.com/Al2Klimov/go-gen-source-repos"
 	"github.com/go-ini/ini"
 	_ "github.com/masif-upgrader/common"
 	"os"
@@ -78,7 +77,7 @@ func loadCfg() (config *settings, err error) {
 	if *cfgFile == "" {
 		fmt.Printf(
 			"For the terms of use, the source code and the authors\nsee the projects this program is assembled from:\n\n  %s\n\n",
-			strings.Join(GithubcomMasif_upgraderCommon, "\n  "),
+			strings.Join(GithubcomAl2klimovGo_gen_source_repos, "\n  "),
 		)
 
 		return nil, errors.New("config file missing")

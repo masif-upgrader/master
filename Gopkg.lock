@@ -3,11 +3,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b0a63d63e82f19f7d695e9c389876d0fc8c6991f5b32c79fecf88b67cc6bac6b"
-  name = "github.com/Al2Klimov/go-generate-deps"
+  digest = "1:23f6ffccb3e18e44df23d4e9d5139ed6d5be0cec9f0e0d452484c2e562108116"
+  name = "github.com/Al2Klimov/go-gen-source-repos"
   packages = ["."]
   pruneopts = "UT"
-  revision = "4a1a324a63feaa6d1f774edba1e090f67d9239f3"
+  revision = "9dfcdbdf9942cbfed94478d3c028afb3aad0c4a1"
 
 [[projects]]
   digest = "1:5abd6a22805b1919f6a6bca0ae58b13cef1f3412812f38569978f43ef02743d4"
@@ -33,19 +33,11 @@
   pruneopts = "UT"
   revision = "7e768493331e53a0aca419ea92ce9e36b872245f"
 
-[[projects]]
-  digest = "1:c25289f43ac4a68d88b02245742347c94f1e108c534dda442188015ff80669b3"
-  name = "google.golang.org/appengine"
-  packages = ["cloudsql"]
-  pruneopts = "UT"
-  revision = "ae0ab99deb4dc413a2b4bd6c8bdd0eb67f1e4d06"
-  version = "v1.2.0"
-
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/Al2Klimov/go-generate-deps",
+    "github.com/Al2Klimov/go-gen-source-repos",
     "github.com/go-ini/ini",
     "github.com/go-sql-driver/mysql",
     "github.com/masif-upgrader/common",
