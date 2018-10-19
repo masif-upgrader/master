@@ -6,6 +6,7 @@ import (
 	"crypto/x509/pkix"
 	"errors"
 	"github.com/masif-upgrader/common"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -14,10 +15,14 @@ import (
 )
 
 func newApi(listen string, tlsCfg struct{ cert, key, ca, crl string }) (result *http.Server, err error) {
+	log.WithFields(log.Fields{"cert": tlsCfg.cert, "key": tlsCfg.key}).Debug("Loading local TLS PKI")
+
 	cert, errLXKP := tls.LoadX509KeyPair(tlsCfg.cert, tlsCfg.key)
 	if errLXKP != nil {
 		return nil, errLXKP
 	}
+
+	log.WithFields(log.Fields{"ca": tlsCfg.ca}).Debug("Loading remote TLS PKI")
 
 	rootCA, errRF := ioutil.ReadFile(tlsCfg.ca)
 	if errRF != nil {
@@ -38,7 +43,7 @@ func newApi(listen string, tlsCfg struct{ cert, key, ca, crl string }) (result *
 
 	return &http.Server{
 		Addr:    listen,
-		Handler: mux,
+		Handler: apiMkLoggingMiddleware(mux),
 		TLSConfig: &tls.Config{
 			Certificates:             []tls.Certificate{cert},
 			VerifyPeerCertificate:    crlValidator,
@@ -51,6 +56,21 @@ func newApi(listen string, tlsCfg struct{ cert, key, ca, crl string }) (result *
 	}, nil
 }
 
+func apiMkLoggingMiddleware(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.WithFields(log.Fields{
+			"remote":   r.RemoteAddr,
+			"cn":       r.TLS.VerifiedChains[0][0].Subject.CommonName,
+			"method":   r.Method,
+			"url":      common.LazyLogString{r.URL.String},
+			"protocol": r.Proto,
+			"length":   r.ContentLength,
+		}).Info("Handling request")
+
+		handler.ServeHTTP(w, r)
+	})
+}
+
 var apiRevoked = errors.New("all valid certificates directly below root have been revoked")
 
 func apiMkCrlValidator(crlPath string) func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
@@ -61,11 +81,15 @@ func apiMkCrlValidator(crlPath string) func(rawCerts [][]byte, verifiedChains []
 	var revokedCerts map[string]struct{} = nil
 
 	return func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
+		log.Debug("Checking the remote's TLS certificate chain for at least one non-revoked path")
+
 		mutex.RLock()
 
 		update := false
 
 		if crl == nil {
+			log.Info("Initially loading CRL")
+
 			update = true
 		} else {
 			if crl.HasExpired(time.Now()) {
@@ -76,6 +100,12 @@ func apiMkCrlValidator(crlPath string) func(rawCerts [][]byte, verifiedChains []
 				}
 
 				update = stats.ModTime().After(lastUpdate)
+
+				if update {
+					log.Info("CRL has expired, re-loading")
+				} else {
+					log.Warn("CRL has expired, but isn't likely to have been updated, not re-loading")
+				}
 			}
 		}
 
@@ -120,10 +150,14 @@ func apiMkCrlValidator(crlPath string) func(rawCerts [][]byte, verifiedChains []
 		for _, chains := range verifiedChains {
 			if chains[len(chains)-1].CheckCRLSignature(crl) == nil {
 				if _, isRevoked := revokedCerts[chains[len(chains)-2].SerialNumber.Text(16)]; !isRevoked {
+					log.Debug("Found non-revoked path in the remote's TLS certificate chain")
+
 					return nil
 				}
 			}
 		}
+
+		log.Warn("Didn't find any non-revoked path in the remote's TLS certificate chain")
 
 		return apiRevoked
 	}

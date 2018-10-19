@@ -6,6 +6,7 @@ import (
 	"database/sql/driver"
 	"github.com/masif-upgrader/common"
 	"github.com/go-sql-driver/mysql"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"strings"
 	"time"
@@ -26,10 +27,19 @@ func isRecoverableDbError(e error) bool {
 }
 
 func dbTx(f func(tx *sql.Tx) error) error {
+	log.Debug("Starting transaction")
+
 	for {
 		errTx := dbTryTx(f)
-		if errTx != nil && isRecoverableDbError(errTx) {
-			continue
+		if errTx == nil {
+			log.Debug("Transaction succeeded")
+		} else {
+			if isRecoverableDbError(errTx) {
+				log.WithFields(log.Fields{"error": errTx}).Warn("Retrying transaction")
+				continue
+			}
+
+			log.WithFields(log.Fields{"error": errTx}).Error("Transaction failed")
 		}
 
 		return errTx
@@ -51,6 +61,8 @@ func dbTryTx(f func(tx *sql.Tx) error) error {
 }
 
 func dbQuery(tx *sql.Tx, query string, args ...interface{}) (result [][]interface{}, err error) {
+	log.WithFields(log.Fields{"sql": query, "params": args}).Debug("Querying database")
+
 	rows, errQuery := tx.Query(query, args...)
 	if errQuery != nil {
 		return nil, errQuery
@@ -79,6 +91,12 @@ func dbQuery(tx *sql.Tx, query string, args ...interface{}) (result [][]interfac
 	}
 
 	return
+}
+
+func dbExec(db interface{ Exec(string, ...interface{}) (sql.Result, error) }, query string, args ...interface{}) (sql.Result, error) {
+	log.WithFields(log.Fields{"sql": query, "params": args}).Debug("Changing database")
+
+	return db.Exec(query, args...)
 }
 
 var pkgMgrAction2db = map[common.PkgMgrAction]string{
@@ -181,12 +199,13 @@ func dbUpdatePendingTasks(agent string, tasks map[common.PkgMgrTask]struct{}) (a
 				now := time.Now().Unix()
 
 				if dbHasAgent {
-					_, errExec := tx.Exec(`UPDATE agent SET mtime=? WHERE id=?`, now, dbAgentId)
+					_, errExec := dbExec(tx, `UPDATE agent SET mtime=? WHERE id=?`, now, dbAgentId)
 					if errExec != nil {
 						return errExec
 					}
 				} else {
-					result, errExec := tx.Exec(
+					result, errExec := dbExec(
+						tx,
 						`INSERT INTO agent(name, ctime, mtime) VALUES (?, ?, ?)`,
 						agent,
 						now,
@@ -221,7 +240,7 @@ func dbUpdatePendingTasks(agent string, tasks map[common.PkgMgrTask]struct{}) (a
 							packageId = rows[0][0].(int64)
 							insertedPackages[task.PackageName] = packageId
 						} else {
-							result, errExec := tx.Exec(`INSERT INTO package(name) VALUES (?)`, task.PackageName)
+							result, errExec := dbExec(tx, `INSERT INTO package(name) VALUES (?)`, task.PackageName)
 							if errExec != nil {
 								return errExec
 							}
@@ -246,7 +265,8 @@ func dbUpdatePendingTasks(agent string, tasks map[common.PkgMgrTask]struct{}) (a
 						toVersion = task.ToVersion
 					}
 
-					_, errExec := tx.Exec(
+					_, errExec := dbExec(
+						tx,
 						`
 INSERT INTO task(agent, package, from_version, to_version, action, approved)
 VALUES (?, ?, ?, ?, ?, 0)
@@ -263,7 +283,7 @@ VALUES (?, ?, ?, ?, ?, 0)
 				}
 			}
 		} else if dbHasAgent {
-			_, errExec := tx.Exec(`DELETE FROM task WHERE agent=? AND approved=0`, dbAgentId)
+			_, errExec := dbExec(tx, `DELETE FROM task WHERE agent=? AND approved=0`, dbAgentId)
 			return errExec
 		}
 
@@ -500,7 +520,8 @@ func dbDeleteTasks(tx *sql.Tx, agent interface{}, approved uint8, tasks map[comm
 			valueIdx0 += len(filter.values)
 		}
 
-		_, errExec := tx.Exec(
+		_, errExec := dbExec(
+			tx,
 			`DELETE t FROM task t WHERE t.agent=? AND t.approved=? AND (CASE t.package `+strings.Join(filters0, " ")+` ELSE 0 END)`,
 			values0...,
 		)
