@@ -6,6 +6,7 @@ package main
 
 import (
 	"database/sql"
+	"database/sql/driver"
 	"errors"
 	"flag"
 	"fmt"
@@ -54,9 +55,16 @@ func runMaster() error {
 	}
 
 	for _, ddl := range mysqlDdls {
-		_, errExec := db.Exec(ddl)
-		if errExec != nil {
-			return errExec
+		for {
+			if _, errExec := db.Exec(ddl); errExec != nil {
+				if errExec == driver.ErrBadConn {
+					continue
+				}
+
+				return errExec
+			}
+
+			break
 		}
 	}
 

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"database/sql/driver"
 	"github.com/masif-upgrader/common"
 	"github.com/go-sql-driver/mysql"
 	"strings"
@@ -13,14 +14,16 @@ func dbTx(f func(tx *sql.Tx) error) error {
 	for {
 		errTx := dbTryTx(f)
 		if errTx != nil {
-			serializationFailure := false
+			retry := false
 
 			switch errDb := errTx.(type) {
 			case *mysql.MySQLError:
-				serializationFailure = errDb.Number == 1213
+				retry = errDb.Number == 1213
+			default:
+				retry = errTx == driver.ErrBadConn
 			}
 
-			if serializationFailure {
+			if retry {
 				continue
 			}
 		}
