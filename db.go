@@ -6,26 +6,30 @@ import (
 	"database/sql/driver"
 	"github.com/masif-upgrader/common"
 	"github.com/go-sql-driver/mysql"
+	"io"
 	"strings"
 	"time"
 )
 
+func isRecoverableDbError(e error) bool {
+	switch errDb := e.(type) {
+	case *mysql.MySQLError:
+		switch errDb.Number {
+		case 1205, 1213:
+			return true
+		default:
+			return false
+		}
+	default:
+		return e == driver.ErrBadConn || e == io.ErrUnexpectedEOF
+	}
+}
+
 func dbTx(f func(tx *sql.Tx) error) error {
 	for {
 		errTx := dbTryTx(f)
-		if errTx != nil {
-			retry := false
-
-			switch errDb := errTx.(type) {
-			case *mysql.MySQLError:
-				retry = errDb.Number == 1213
-			default:
-				retry = errTx == driver.ErrBadConn
-			}
-
-			if retry {
-				continue
-			}
+		if errTx != nil && isRecoverableDbError(errTx) {
+			continue
 		}
 
 		return errTx
