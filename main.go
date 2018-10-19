@@ -83,7 +83,7 @@ func runMaster() error {
 
 	for _, ddl := range mysqlDdls {
 		for {
-			if _, errExec := db.Exec(ddl); errExec != nil {
+			if _, errExec := dbExec(db, ddl); errExec != nil {
 				if isRecoverableDbError(errExec) {
 					continue
 				}
