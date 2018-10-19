@@ -74,6 +74,8 @@ func runMaster() error {
 		return errNA
 	}
 
+	log.Info("Loading SQL schema")
+
 	var errDB error
 	if db, errDB = sql.Open(cfg.db.typ, cfg.db.dsn); errDB != nil {
 		return errDB
@@ -93,6 +95,8 @@ func runMaster() error {
 		}
 	}
 
+	log.Info("Starting HTTPd")
+
 	return httpd.ListenAndServeTLS("", "")
 }
 
@@ -103,6 +107,8 @@ func loadCfg() (config *settings, err error) {
 	if *cfgFile == "" {
 		return nil, errors.New("config file missing")
 	}
+
+	log.WithFields(log.Fields{"file": *cfgFile}).Debug("Loading config")
 
 	cfg, errLI := ini.Load(*cfgFile)
 	if errLI != nil {

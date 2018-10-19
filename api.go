@@ -6,6 +6,7 @@ import (
 	"crypto/x509/pkix"
 	"errors"
 	"github.com/masif-upgrader/common"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -14,10 +15,14 @@ import (
 )
 
 func newApi(listen string, tlsCfg struct{ cert, key, ca, crl string }) (result *http.Server, err error) {
+	log.WithFields(log.Fields{"cert": tlsCfg.cert, "key": tlsCfg.key}).Debug("Loading local TLS PKI")
+
 	cert, errLXKP := tls.LoadX509KeyPair(tlsCfg.cert, tlsCfg.key)
 	if errLXKP != nil {
 		return nil, errLXKP
 	}
+
+	log.WithFields(log.Fields{"ca": tlsCfg.ca}).Debug("Loading remote TLS PKI")
 
 	rootCA, errRF := ioutil.ReadFile(tlsCfg.ca)
 	if errRF != nil {
