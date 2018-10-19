@@ -15,8 +15,8 @@ FROM debian:9
 COPY --from=build /go/bin/master /usr/local/bin/masif-upgrader-master
 COPY --from=ochinchina/supervisord:latest /usr/local/bin/supervisord /usr/local/bin/
 
-COPY --from=masifupgrader/common /pki-master/keys /pki-master
-COPY --from=masifupgrader/common /pki-agent/keys /pki-agent
+COPY --from=masifupgrader/common /pki-master/pki /pki-master
+COPY --from=masifupgrader/common /pki-agent/pki /pki-agent
 COPY _docker/config.ini /etc/masif-upgrader-master.ini
 COPY _docker/supervisord.conf /etc/
 
