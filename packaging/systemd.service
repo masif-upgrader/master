@@ -1,6 +1,6 @@
 [Unit]
 Description=Masif Upgrader (master)
-After=syslog.target
+After=syslog.target mysql.service
 
 [Service]
 ExecStart=/usr/sbin/masif-upgrader-master --config /etc/masif-upgrader/master.ini
