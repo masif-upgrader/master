@@ -1,4 +1,4 @@
-//go:generate go run vendor/github.com/Al2Klimov/go-gen-source-repos/main.go github.com/masif-upgrader/master
+//go:generate go run github.com/Al2Klimov/go-gen-source-repos
 //go:generate go run gen-mysql.go
 
 package main
@@ -8,7 +8,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	_ "github.com/Al2Klimov/go-gen-source-repos"
 	"github.com/go-ini/ini"
 	_ "github.com/masif-upgrader/common"
 	log "github.com/sirupsen/logrus"
