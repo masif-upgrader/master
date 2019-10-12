@@ -1,5 +1,5 @@
 //go:generate go run github.com/Al2Klimov/go-gen-source-repos
-//go:generate go run gen-mysql.go
+//go:generate go run gen-mysql/gen-mysql.go
 
 package main
 
