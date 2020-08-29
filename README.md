@@ -54,6 +54,22 @@ The *db* section describes the database the master shares with the UI:
 * info
 * debug
 
+## Docker
+
+```bash
+docker run --rm -d \
+  -v /var/lib/puppet/ssl:/pki:ro \
+  -e MASIF_MASTER_API_LISTEN=0.0.0.0:8150 \
+  -e MASIF_MASTER_TLS_CERT=/pki/certs/infra-mgmt.intern.example.com.pem \
+  -e MASIF_MASTER_TLS_KEY=/pki/private_keys/infra-mgmt.intern.example.com.pem \
+  -e MASIF_MASTER_TLS_CA=/pki/certs/ca.pem \
+  -e MASIF_MASTER_TLS_CRL=/pki/ca/ca_crl.pem \
+  -e MASIF_MASTER_DB_TYPE=mysql \
+  -e MASIF_MASTER_DB_DSN=masif_upgrader_master:123456@192.0.2.2/masif_upgrader \
+  -e MASIF_MASTER_LOG_LEVEL=info \
+  masifupgrade/master
+```
+
 [manual]: https://github.com/masif-upgrader/manual
 [demo]: https://github.com/masif-upgrader/demo
 [DSN]: https://github.com/go-sql-driver/mysql#dsn-data-source-name
