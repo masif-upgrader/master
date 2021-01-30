@@ -167,6 +167,7 @@ func apiV1PendingTasks(writer http.ResponseWriter, request *http.Request) {
 	cn := request.TLS.VerifiedChains[0][0].Subject.CommonName
 	if cn == "" {
 		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("empty TLS cert CN"))
 		return
 	}
 
@@ -184,6 +185,7 @@ func apiV1PendingTasks(writer http.ResponseWriter, request *http.Request) {
 	tasks, errA2PMT := common.Api2PkgMgrTasks(body)
 	if errA2PMT != nil {
 		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte(errA2PMT.Error()))
 		return
 	}
 
