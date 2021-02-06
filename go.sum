@@ -35,6 +35,8 @@ github.com/masif-upgrader/common v0.0.0-20181019182021-9355066c84d6 h1:GcP/2RDBn
 github.com/masif-upgrader/common v0.0.0-20181019182021-9355066c84d6/go.mod h1:v+9xDgUeR0QAZQ4qgmIjGyI24oo/wz4GUYk/il5g8cA=
 github.com/masif-upgrader/common v0.0.0-20210202200036-ee6176d2b7d8 h1:eFKL/REsDKEpgfsLcvwAN7ndErFCnTWTvYqRP2A3J64=
 github.com/masif-upgrader/common v0.0.0-20210202200036-ee6176d2b7d8/go.mod h1:v+9xDgUeR0QAZQ4qgmIjGyI24oo/wz4GUYk/il5g8cA=
+github.com/masif-upgrader/common v0.0.0-20210206112910-f1dfe2ae73c9 h1:gBGxULtKH9ahV++n/MiUbV6SUW+RdgHrBLZVQSLY8ZI=
+github.com/masif-upgrader/common v0.0.0-20210206112910-f1dfe2ae73c9/go.mod h1:v+9xDgUeR0QAZQ4qgmIjGyI24oo/wz4GUYk/il5g8cA=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/sirupsen/logrus v1.4.2 h1:SPIRibHv4MatM3XXNO2BJeFLZwZ2LvZgfQ5+UNI2im4=
